@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -22,10 +21,10 @@ public class Main {
             System.out.print("Escribe una palabra a buscar: ");
             String palabra = sc.nextLine();
             ArrayList<String> lista = new ArrayList<>();
+            ArrayList<String> auxList = new ArrayList<>();
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.seek(0);
                 String linea;
-                byte[] bytes;
                 while (raf.getFilePointer() != raf.length()) {
                     linea = raf.readLine();
                     if (linea.contains(palabra)) {
@@ -34,51 +33,48 @@ public class Main {
 
 
                 }
-                ArrayList<String> auxList = new ArrayList<>();
+
                 for (String s : lista) {
                     System.out.println(s);
                     String aux = null;
                     if (s.contains(palabra)) {
-                        aux = upperCaseWord(s,palabra);
+                        aux = upperCaseWord(s, palabra);
                     }
                     System.out.println(aux);
                     auxList.add(aux);
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            int size = 0;
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                long beggining;
                 while (raf.getFilePointer() != raf.length()) {
+                    beggining = raf.getFilePointer();
+                    for (String s : auxList) {
 
-                    if (raf.readLine().contains(palabra)) {
-                        raf.seek(raf.getFilePointer());
-                        raf.writeChars(lista.get(size));
-                        size++;
+                        if (raf.readLine().contains(palabra)) {
+                            raf.seek(beggining);
+                            raf.writeChars(s);
+                        }
                     }
+                raf.readLine();
                 }
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static String upperCaseWord (String str, String word )
-    {
+    private static String upperCaseWord(String str, String word) {
         String finalStr = null;
-        if ( str.indexOf ( word ) != -1 ) // Checking the Existance of word
+        if (str.contains(word)) // Checking the Existance of word
         {
-            int strLen = str.length();
-            int index = str.indexOf ( word );
+            int index = str.indexOf(word);
             int length = word.length();
             word = word.toUpperCase();
-            String part1 = str.substring ( 0 , index );
-            String part2 = str.substring ( index + length );
+            String part1 = str.substring(0, index);
+            String part2 = str.substring(index + length);
             finalStr = part1 + word + part2;
         }
         return finalStr;
